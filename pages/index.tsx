@@ -21,6 +21,7 @@ export default function Home() {
                             <thead>
                               <tr>
                                 <th scope='col'>Bezirk</th>
+                                <th scope='col'>Abschlepp Unternehmen</th>
                                 <th scope='col'>Straße</th>
                                 <th scope='col'>Ort</th>
                                 <th scope='col'>PLZ</th>
@@ -32,6 +33,7 @@ export default function Home() {
                       return (
                         <tr>
                           <td>{x.district}</td>
+                          <td>{x.towingCompany}</td>
                           <td>{x.street}</td>
                           <td>{x.location}</td>
                           <td>{x.postcode}</td>
