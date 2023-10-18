@@ -6,22 +6,7 @@
 }
 
 body {
-  background-color: grey;
-}
-
-.css-table {
-  display: table;
-}
-
-.css-table-row {
-  display: table-row;
-}
-
-.css-table-row div {
-  display: table-cell;
-
-  padding: 5px 0px;
-  min-width: 100px;
+  background-color: #303841;
 }
 
 .block {

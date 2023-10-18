@@ -21,15 +21,14 @@ let openWebsiteHandler = (e:Street) =>
       <div className="form-outline">
                     <input type="search" id="form1" className="form-control" placeholder="Straßen Name" aria-label="Search" onChange={streetHandler} style={{marginBottom:'1rem'}}/>
                 </div>
-                <div className="css-table d-flex justify-content-center" style={{ display: 'flex', gap: '0.5rem', flexWrap:'wrap' }}>
                 <table className="table table-striped">
                             <thead>
                               <tr>
-                                <th scope='col'>Bezirk</th>
-                                <th scope='col'>Abschlepp Unternehmen</th>
-                                <th scope='col'>Straße</th>
-                                <th scope='col'>Ort</th>
-                                <th scope='col'>PLZ</th>
+                                <th scope='col' style={{width:'10px', textAlign:'center'}}>Bezirk</th>
+                                <th scope='col' style={{width:'200px', textAlign:'center'}}>Abschlepp</th>
+                                <th scope='col' style={{textAlign:'center'}}>Straße</th>
+                                <th scope='col' style={{textAlign:'center'}}>Ort</th>
+                                <th scope='col' style={{textAlign:'center'}}>PLZ</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -37,17 +36,17 @@ let openWebsiteHandler = (e:Street) =>
                     {streets.map(x => {
                       return (
                         <tr onClick={() => openWebsiteHandler(x)} >
-                          <td>{x.district}</td>
-                          <td>{x.towingCompany}</td>
-                          <td>{x.street}</td>
-                          <td>{x.location}</td>
-                          <td>{x.postcode}</td>
+                          <td style={{textAlign:'center'}}>{x.district}</td>
+                          <td style={{textAlign:'center'}}>{x.towingCompany}</td>
+                          <td style={{textAlign:'center'}}>{x.street}</td>
+                          <td style={{textAlign:'center'}}>{x.location}</td>
+                          <td style={{textAlign:'center'}}>{x.postcode}</td>
                         </tr>
                         )
                       })}
                       </tbody>
                           </table>
-                </div>
+                
     </div>
   )
 }
