@@ -1,0 +1,108 @@
+name: Main
+on:
+  push:
+    branches: [master]
+    paths-ignore: 
+      - .github/**
+  workflow_dispatch:
+env:
+  NODE_VERSION: 20
+  APP_NAME: 'District Finder'
+  DEPLOY_PATH: '/var/www/district_finder'
+  PORT: 22
+
+jobs:
+  test-stage:
+    runs-on: ubuntu-20.04
+    steps:
+      # Get Code
+    - uses: actions/checkout@v3
+      
+  build-stage:
+    needs: test-stage
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache Dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install NodeJs
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{env.NODE_VERSION}}
+      
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Create .env.local
+      run: |
+        echo 'Github_User=${{secrets.GH_USER}}' > .env.local
+        echo 'Github_Secret=${{secrets.GH_SECRET}}' >> .env.local
+        echo 'Discord_Secret=${{secrets.DISCORD_SECRET}}' >> .env.local
+        echo 'Discord_Client=${{secrets.DISCORD_CLIENT}}' >> .env.local
+        echo 'NEXTAUTH_URL=${{secrets.NEXTAUTH_URL}}' >> .env.local
+        echo 'Mongo=${{secrets.MONGO}}' >> .env.local
+        echo 'PROTECT_API=${{secrets.PROTECT_API}}' >> .env.local
+
+    - name: create-json
+      id: create-json
+      uses: jsdaniell/create-json@v1.2.2
+      with:
+        name: "aboutMe.json"
+        json: '${{secrets.ABOUTME}}'
+
+      # Build the Project with npm run build
+    - name: Build Project
+      run: npm run build
+
+      # Upload Files for other Jobs to download
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: |
+          .next
+          package.json
+          package-lock.json
+          .env.local
+      
+  deploy-stage:
+    needs: build-stage
+    runs-on: ubuntu-20.04
+    steps:
+        # Download Files
+      - name: Get build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-files
+
+        # Deploy Files to Server with sftp
+      - name: Deploy Files
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+            username: ${{ secrets.SERVER_USERNAME }}
+            server: ${{ secrets.SERVER_IP }}
+            password: ${{ secrets.SERVER_PASSWORD }}
+            ssh_private_key: ${{ secrets.SERVER_SSH_KEY }} 
+            local_path: './'
+            remote_path: ${{env.DEPLOY_PATH}}
+
+        # Connecting to Server over SSH and cd to path for App, install dependencies and then restart service
+      - name: Install Dependencies on Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{env.PORT}}
+          script: |
+            cd ${{env.DEPLOY_PATH}}
+            npm ci
+            pm2 delete '${{env.APP_NAME}}'
+            pm2 start npm --name '${{env.APP_NAME}}' -- start
+            pm2 save
+    
