@@ -11,6 +11,11 @@ export default function Home() {
     setStreets(s);
 }
 
+let openWebsiteHandler = (e:Street) =>
+{
+  window.open(`https://www.google.de/maps/place/${e.street},${e.postcode}+${e.city}`, '_blank')
+}
+
   return (
     <div className="container" style={{paddingTop: '2rem'}}>
       <div className="form-outline">
@@ -31,7 +36,7 @@ export default function Home() {
 
                     {streets.map(x => {
                       return (
-                        <tr>
+                        <tr onClick={() => openWebsiteHandler(x)} >
                           <td>{x.district}</td>
                           <td>{x.towingCompany}</td>
                           <td>{x.street}</td>
